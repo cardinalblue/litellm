@@ -1738,6 +1738,7 @@ class ModelResponseIterator:
 
             text = ""
             tool_use: Optional[ChatCompletionToolCallChunk] = None
+            provider_specific_fields = {}
             finish_reason = ""
             usage: Optional[ChatCompletionUsageBlock] = None
             _candidates: Optional[List[Candidates]] = processed_chunk.get("candidates")
@@ -1752,6 +1753,8 @@ class ModelResponseIterator:
             ):
                 if "text" in gemini_chunk["content"]["parts"][0]:
                     text = gemini_chunk["content"]["parts"][0]["text"]
+                elif "inlineData" in gemini_chunk["content"]["parts"][0]:
+                    provider_specific_fields["inlineData"] = gemini_chunk["content"]["parts"][0]["inlineData"]
                 elif "functionCall" in gemini_chunk["content"]["parts"][0]:
                     function_call = ChatCompletionToolCallFunctionChunk(
                         name=gemini_chunk["content"]["parts"][0]["functionCall"][
@@ -1801,6 +1804,11 @@ class ModelResponseIterator:
                 finish_reason=finish_reason,
                 usage=usage,
                 index=0,
+                provider_specific_fields=(
+                    provider_specific_fields
+                    if provider_specific_fields
+                    else None
+                ),
             )
             return returned_chunk
         except json.JSONDecodeError:
