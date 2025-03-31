@@ -338,7 +338,6 @@ BatchJobStatus = Literal[
     "cancelled",
 ]
 
-
 class ChatCompletionAudioDelta(TypedDict, total=False):
     data: str
     transcript: str
