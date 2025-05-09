@@ -435,16 +435,15 @@ class HttpPassThroughEndpointHelpers:
     ) -> httpx.Response:
         """Process multipart/form-data requests, handling both files and form fields"""
         form_data = await request.form()
-        files = {}
+        files = []  # List of (field_name, file_tuple)
         form_data_dict = {}
 
-        for field_name, field_value in form_data.items():
+        for field_name, field_value in form_data.multi_items():
             if isinstance(field_value, (StarletteUploadFile, UploadFile)):
-                files[field_name] = (
-                    await HttpPassThroughEndpointHelpers._build_request_files_from_upload_file(
-                        upload_file=field_value
-                    )
+                file_tuple = await HttpPassThroughEndpointHelpers._build_request_files_from_upload_file(
+                    upload_file=field_value
                 )
+                files.append((field_name, file_tuple))
             else:
                 form_data_dict[field_name] = field_value
 
