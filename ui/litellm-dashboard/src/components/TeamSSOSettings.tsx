@@ -26,6 +26,10 @@ const PERMISSION_OPTIONS = [
   "/key/unblock",
   "/key/bulk_update",
   "/key/{key_id}/reset_spend",
+  "/key/info",
+  "/key/list",
+  "/key/aliases",
+  "/team/daily/activity",
 ];
 
 interface SettingRowProps {
@@ -232,9 +236,7 @@ const TeamSSOSettings: React.FC<TeamSSOSettingsProps> = ({ accessToken }) => {
               label="TPM Limit"
               description="Maximum tokens per minute allowed across all models."
               isEditing={isEditing}
-              viewContent={
-                values.tpm_limit != null ? <Text>{values.tpm_limit.toLocaleString()}</Text> : <NotSet />
-              }
+              viewContent={values.tpm_limit != null ? <Text>{values.tpm_limit.toLocaleString()}</Text> : <NotSet />}
               editContent={
                 <InputNumber
                   className="w-full"
@@ -251,9 +253,7 @@ const TeamSSOSettings: React.FC<TeamSSOSettingsProps> = ({ accessToken }) => {
               label="RPM Limit"
               description="Maximum requests per minute allowed across all models."
               isEditing={isEditing}
-              viewContent={
-                values.rpm_limit != null ? <Text>{values.rpm_limit.toLocaleString()}</Text> : <NotSet />
-              }
+              viewContent={values.rpm_limit != null ? <Text>{values.rpm_limit.toLocaleString()}</Text> : <NotSet />}
               editContent={
                 <InputNumber
                   className="w-full"

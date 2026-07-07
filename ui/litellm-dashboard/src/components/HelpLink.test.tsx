@@ -16,11 +16,14 @@ describe("HelpLink", () => {
   });
 
   it("should render custom children text", () => {
-    renderWithProviders(
-      <HelpLink href="https://docs.example.com">Custom docs link</HelpLink>
-    );
+    renderWithProviders(<HelpLink href="https://docs.example.com">Custom docs link</HelpLink>);
 
     expect(screen.getByText("Custom docs link")).toBeInTheDocument();
+  });
+
+  it("should have the correct href", () => {
+    renderWithProviders(<HelpLink href="https://docs.example.com/test" />);
+    expect(screen.getByRole("link")).toHaveAttribute("href", "https://docs.example.com/test");
   });
 
   it("should include a screen-reader-only label for accessibility", () => {
@@ -46,14 +49,22 @@ describe("HelpIcon", () => {
     expect(screen.getByText("Tooltip help text")).toBeInTheDocument();
   });
 
+  it("should hide tooltip content when not hovered", () => {
+    renderWithProviders(<HelpIcon content="Hidden tooltip" />);
+    expect(screen.queryByText("Hidden tooltip")).not.toBeInTheDocument();
+  });
+
   it("should show learn more link when learnMoreHref is provided", async () => {
     const user = userEvent.setup();
+    renderWithProviders(<HelpIcon content="Help text" learnMoreHref="https://docs.example.com" />);
+    await user.hover(screen.getByRole("button", { name: /help information/i }));
+    expect(screen.getByText("Learn more")).toBeInTheDocument();
+  });
+
+  it("should use custom learn more text when provided", async () => {
+    const user = userEvent.setup();
     renderWithProviders(
-      <HelpIcon
-        content="Help text"
-        learnMoreHref="https://docs.example.com"
-        learnMoreText="Read docs"
-      />
+      <HelpIcon content="Help text" learnMoreHref="https://docs.example.com" learnMoreText="Read docs" />,
     );
 
     await user.hover(screen.getByRole("button", { name: /help information/i }));
@@ -82,6 +93,11 @@ describe("DocsMenu", () => {
     renderWithProviders(<DocsMenu items={items} />);
 
     expect(screen.getByRole("button", { name: /docs/i })).toBeInTheDocument();
+  });
+
+  it("should hide menu items initially", () => {
+    renderWithProviders(<DocsMenu items={items} />);
+    expect(screen.queryByText("Custom pricing")).not.toBeInTheDocument();
   });
 
   it("should show menu items when button is clicked", async () => {
@@ -113,5 +129,19 @@ describe("DocsMenu", () => {
 
     await user.click(button);
     expect(button).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("should close menu when clicking outside", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <div>
+        <DocsMenu items={items} />
+        <button>Outside</button>
+      </div>,
+    );
+    await user.click(screen.getByRole("button", { name: /docs/i }));
+    expect(screen.getByText("Custom pricing")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /outside/i }));
+    expect(screen.queryByText("Custom pricing")).not.toBeInTheDocument();
   });
 });
